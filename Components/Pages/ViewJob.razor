@@ -1,0 +1,225 @@
+@page "/jobs/view/{jobId:int}"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject IJobApplyRepository JobApplyRepository
+@inject UserManager<ApplicationUser> UserManager
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>View Job Application - Odysseus</PageTitle>
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            @if (IsLoading)
+            {
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            }
+            else if (JobApplication == null)
+            {
+                <div class="alert alert-danger">
+                    <h4>Job Application Not Found</h4>
+                    <p>The job application you're trying to view doesn't exist or you don't have permission to access it.</p>
+                    <a href="/dashboard" class="btn btn-primary">Back to Dashboard</a>
+                </div>
+            }
+            else
+            {
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3 class="mb-0">Job Application Details</h3>
+                            <div>
+                                <a href="/jobs/edit/@JobId" class="btn btn-outline-secondary me-2">
+                                    <i class="bi bi-pencil"></i> Edit
+                                </a>
+                                <a href="/dashboard" class="btn btn-outline-primary">
+                                    <i class="bi bi-arrow-left"></i> Back to Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-4">
+                            <div class="col-md-8">
+                                <h4 class="text-primary">@JobApplication.JobRole</h4>
+                                <h5 class="text-muted">@JobApplication.CompanyName</h5>
+                                <p class="mb-1">
+                                    <i class="bi bi-geo-alt"></i> @JobApplication.CompanyCountry
+                                </p>
+                                @if (!string.IsNullOrEmpty(JobApplication.JobLink))
+                                {
+                                    <p class="mb-0">
+                                        <i class="bi bi-link-45deg"></i> 
+                                        <a href="@JobApplication.JobLink" target="_blank" class="text-decoration-none">
+                                            View Job Posting <i class="bi bi-box-arrow-up-right"></i>
+                                        </a>
+                                    </p>
+                                }
+                            </div>
+                            <div class="col-md-4 text-md-end">
+                                <span class="@JobApplication.StatusBadgeClass fs-5">@JobApplication.StatusDisplay</span>
+                                @if (JobApplication.IsRecent)
+                                {
+                                    <br><span class="badge bg-info mt-2">Recently Added</span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Application Information</h6>
+                                        <dl class="row mb-0">
+                                            <dt class="col-sm-6">Date Applied:</dt>
+                                            <dd class="col-sm-6">@JobApplication.DateOfApply.ToString("MMMM dd, yyyy")</dd>
+                                            
+                                            <dt class="col-sm-6">Days Since:</dt>
+                                            <dd class="col-sm-6">@JobApplication.DaysSinceApply days</dd>
+                                            
+                                            <dt class="col-sm-6">Phases:</dt>
+                                            <dd class="col-sm-6">@JobApplication.NumberOfPhases</dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Requirements</h6>
+                                        <div class="mb-2">
+                                            @if (JobApplication.RequiresSponsorship)
+                                            {
+                                                <span class="badge bg-warning text-dark">
+                                                    <i class="bi bi-passport"></i> Sponsorship Required
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-success">
+                                                    <i class="bi bi-check-circle"></i> No Sponsorship Needed
+                                                </span>
+                                            }
+                                        </div>
+                                        <div>
+                                            @if (JobApplication.RequiresRelocation)
+                                            {
+                                                <span class="badge bg-warning text-dark">
+                                                    <i class="bi bi-house-door"></i> Relocation Required
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-success">
+                                                    <i class="bi bi-check-circle"></i> No Relocation Needed
+                                                </span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(JobApplication.Notes))
+                        {
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h6 class="card-title">Notes</h6>
+                                            <p class="card-text mb-0" style="white-space: pre-wrap;">@JobApplication.Notes</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="card border-info">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-info">Timeline</h6>
+                                        <dl class="row mb-0">
+                                            <dt class="col-sm-3">Created:</dt>
+                                            <dd class="col-sm-9">@JobApplication.CreatedAt.ToString("MMMM dd, yyyy 'at' h:mm tt")</dd>
+                                            
+                                            @if (JobApplication.UpdatedAt.HasValue)
+                                            {
+                                                <dt class="col-sm-3">Last Updated:</dt>
+                                                <dd class="col-sm-9">@JobApplication.UpdatedAt.Value.ToString("MMMM dd, yyyy 'at' h:mm tt")</dd>
+                                            }
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="/dashboard" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Back to Dashboard
+                            </a>
+                            <a href="/jobs/edit/@JobId" class="btn btn-primary">
+                                <i class="bi bi-pencil"></i> Edit Application
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int JobId { get; set; }
+
+    private JobApplyViewModel? JobApplication;
+    private bool IsLoading = true;
+    private string? CurrentUserId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user?.Identity?.IsAuthenticated == true)
+        {
+            CurrentUserId = UserManager.GetUserId(user);
+            if (!string.IsNullOrEmpty(CurrentUserId))
+            {
+                await LoadJobApplication();
+            }
+        }
+
+        IsLoading = false;
+    }
+
+    private async Task LoadJobApplication()
+    {
+        if (string.IsNullOrEmpty(CurrentUserId)) return;
+
+        try
+        {
+            var jobApply = await JobApplyRepository.GetByIdAndUserIdAsync(JobId, CurrentUserId);
+            if (jobApply != null)
+            {
+                JobApplication = jobApply.ToViewModel();
+            }
+        }
+        catch (Exception ex)
+        {
+            // Log error in production
+            Console.WriteLine($"Error loading job application: {ex.Message}");
+        }
+    }
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
+
+    [Inject]
+    private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+}

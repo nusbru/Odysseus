@@ -1,0 +1,106 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.Authorization
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>Odysseus - Job Application Tracker</PageTitle>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <AuthorizeView>
+                <Authorized>
+                    <!-- Redirect authenticated users to dashboard -->
+                    @{
+                        Navigation.NavigateTo("/dashboard", replace: true);
+                    }
+                </Authorized>
+                <NotAuthorized>
+                    <!-- Landing page for non-authenticated users -->
+                    <div class="hero-section bg-primary text-white text-center py-5 mb-5">
+                        <div class="container">
+                            <h1 class="display-4 fw-bold mb-3">
+                                <i class="bi bi-compass"></i> Odysseus
+                            </h1>
+                            <p class="lead mb-4">
+                                Your journey to landing the perfect job starts here. Track applications, manage your progress, and stay organized throughout your job search.
+                            </p>
+                            <div class="d-flex gap-3 justify-content-center">
+                                <a href="/Account/Register" class="btn btn-light btn-lg">
+                                    <i class="bi bi-person-plus"></i> Get Started
+                                </a>
+                                <a href="/Account/Login" class="btn btn-outline-light btn-lg">
+                                    <i class="bi bi-box-arrow-in-right"></i> Sign In
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-4 mb-4">
+                                <div class="card h-100 shadow-sm">
+                                    <div class="card-body text-center">
+                                        <div class="text-primary mb-3">
+                                            <i class="bi bi-briefcase display-4"></i>
+                                        </div>
+                                        <h5 class="card-title">Track Applications</h5>
+                                        <p class="card-text">
+                                            Keep track of all your job applications in one place. Never lose sight of where you've applied and what stage you're at.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 mb-4">
+                                <div class="card h-100 shadow-sm">
+                                    <div class="card-body text-center">
+                                        <div class="text-success mb-3">
+                                            <i class="bi bi-graph-up display-4"></i>
+                                        </div>
+                                        <h5 class="card-title">Monitor Progress</h5>
+                                        <p class="card-text">
+                                            Visualize your job search progress with detailed statistics and insights to help you understand your success rate.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 mb-4">
+                                <div class="card h-100 shadow-sm">
+                                    <div class="card-body text-center">
+                                        <div class="text-info mb-3">
+                                            <i class="bi bi-calendar-check display-4"></i>
+                                        </div>
+                                        <h5 class="card-title">Stay Organized</h5>
+                                        <p class="card-text">
+                                            Organize your applications by status, date, and company. Add notes and track multiple interview phases.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-5">
+                            <div class="col-12 text-center">
+                                <h2 class="mb-4">Ready to Take Control of Your Job Search?</h2>
+                                <p class="lead text-muted mb-4">
+                                    Join thousands of job seekers who have organized their job search with Odysseus.
+                                </p>
+                                <a href="/Account/Register" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-rocket-takeoff"></i> Start Your Journey
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </NotAuthorized>
+            </AuthorizeView>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+        border-radius: 0 0 50px 50px;
+        margin: -1.5rem -15px 0 -15px;
+    }
+</style>

@@ -1,0 +1,348 @@
+@page "/jobs/edit/{jobId:int}"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject IJobApplyRepository JobApplyRepository
+@inject UserManager<ApplicationUser> UserManager
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
+
+<PageTitle>Edit Job Application - Odysseus</PageTitle>
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            @if (IsLoading)
+            {
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            }
+            else if (FormModel == null)
+            {
+                <div class="alert alert-danger">
+                    <h4>Job Application Not Found</h4>
+                    <p>The job application you're trying to edit doesn't exist or you don't have permission to access it.</p>
+                    <a href="/dashboard" class="btn btn-primary">Back to Dashboard</a>
+                </div>
+            }
+            else
+            {
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3 class="mb-0">@FormModel.FormTitle</h3>
+                            <a href="/dashboard" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Back to Dashboard
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <EditForm Model="FormModel" OnValidSubmit="HandleValidSubmit" FormName="EditJobApplicationForm">
+                            <DataAnnotationsValidator />
+                            
+                            @if (!string.IsNullOrEmpty(ErrorMessage))
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    <i class="bi bi-exclamation-triangle"></i> @ErrorMessage
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrEmpty(SuccessMessage))
+                            {
+                                <div class="alert alert-success" role="alert">
+                                    <i class="bi bi-check-circle"></i> @SuccessMessage
+                                </div>
+                            }
+
+                            <div class="row">
+                                <!-- Company Information -->
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="companyName" class="form-label">Company Name *</label>
+                                        <InputText @bind-Value="FormModel.CompanyName" 
+                                                  class="form-control" 
+                                                  id="companyName" 
+                                                  placeholder="Enter company name" />
+                                        <ValidationMessage For="@(() => FormModel.CompanyName)" class="text-danger" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="companyCountry" class="form-label">Company Country *</label>
+                                        <InputText @bind-Value="FormModel.CompanyCountry" 
+                                                  class="form-control" 
+                                                  id="companyCountry" 
+                                                  placeholder="Enter country" />
+                                        <ValidationMessage For="@(() => FormModel.CompanyCountry)" class="text-danger" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <!-- Job Information -->
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="jobRole" class="form-label">Job Role *</label>
+                                        <InputText @bind-Value="FormModel.JobRole" 
+                                                  class="form-control" 
+                                                  id="jobRole" 
+                                                  placeholder="Enter job role" />
+                                        <ValidationMessage For="@(() => FormModel.JobRole)" class="text-danger" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="jobLink" class="form-label">Job Link</label>
+                                        <InputText @bind-Value="FormModel.JobLink" 
+                                                  class="form-control" 
+                                                  id="jobLink" 
+                                                  placeholder="https://..." />
+                                        <ValidationMessage For="@(() => FormModel.JobLink)" class="text-danger" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <!-- Application Details -->
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="dateOfApply" class="form-label">Date of Apply *</label>
+                                        <InputDate @bind-Value="FormModel.DateOfApply" 
+                                                  class="form-control" 
+                                                  id="dateOfApply" />
+                                        <ValidationMessage For="@(() => FormModel.DateOfApply)" class="text-danger" />
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="numberOfPhases" class="form-label">Number of Phases</label>
+                                        <InputNumber @bind-Value="FormModel.NumberOfPhases" 
+                                                    class="form-control" 
+                                                    id="numberOfPhases" 
+                                                    min="1" max="10" />
+                                        <ValidationMessage For="@(() => FormModel.NumberOfPhases)" class="text-danger" />
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="status" class="form-label">Status *</label>
+                                        <InputSelect @bind-Value="FormModel.Status" class="form-select" id="status">
+                                            @foreach (var status in Enum.GetValues<JobStatus>())
+                                            {
+                                                <option value="@status">@GetStatusDisplay(status)</option>
+                                            }
+                                        </InputSelect>
+                                        <ValidationMessage For="@(() => FormModel.Status)" class="text-danger" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <!-- Additional Requirements -->
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <InputCheckbox @bind-Value="FormModel.RequiresSponsorship" 
+                                                          class="form-check-input" 
+                                                          id="requiresSponsorship" />
+                                            <label class="form-check-label" for="requiresSponsorship">
+                                                Requires Sponsorship
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <InputCheckbox @bind-Value="FormModel.RequiresRelocation" 
+                                                          class="form-check-input" 
+                                                          id="requiresRelocation" />
+                                            <label class="form-check-label" for="requiresRelocation">
+                                                Requires Relocation
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Notes -->
+                            <div class="mb-3">
+                                <label for="notes" class="form-label">Notes</label>
+                                <InputTextArea @bind-Value="FormModel.Notes" 
+                                              class="form-control" 
+                                              id="notes" 
+                                              rows="4" 
+                                              placeholder="Add any additional notes about this application..." />
+                                <ValidationMessage For="@(() => FormModel.Notes)" class="text-danger" />
+                            </div>
+
+                            <!-- Form Actions -->
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <a href="/dashboard" class="btn btn-secondary me-2">Cancel</a>
+                                    <button type="button" class="btn btn-danger" @onclick="ConfirmDelete">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </button>
+                                </div>
+                                <button type="submit" class="btn btn-primary" disabled="@IsSubmitting">
+                                    @if (IsSubmitting)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                    }
+                                    <i class="bi bi-check-circle"></i> @FormModel.SubmitButtonText
+                                </button>
+                            </div>
+                        </EditForm>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int JobId { get; set; }
+
+    private JobApplyFormViewModel? FormModel;
+    private bool IsLoading = true;
+    private bool IsSubmitting = false;
+    private string? ErrorMessage;
+    private string? SuccessMessage;
+    private string? CurrentUserId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user?.Identity?.IsAuthenticated == true)
+        {
+            CurrentUserId = UserManager.GetUserId(user);
+            if (!string.IsNullOrEmpty(CurrentUserId))
+            {
+                await LoadJobApplication();
+            }
+        }
+
+        IsLoading = false;
+    }
+
+    private async Task LoadJobApplication()
+    {
+        if (string.IsNullOrEmpty(CurrentUserId)) return;
+
+        try
+        {
+            var jobApply = await JobApplyRepository.GetByIdAndUserIdAsync(JobId, CurrentUserId);
+            if (jobApply != null)
+            {
+                FormModel = jobApply.ToFormViewModel();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error loading job application: {ex.Message}";
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (string.IsNullOrEmpty(CurrentUserId) || FormModel == null)
+        {
+            ErrorMessage = "User not authenticated or form data missing";
+            return;
+        }
+
+        IsSubmitting = true;
+        ErrorMessage = null;
+        SuccessMessage = null;
+
+        try
+        {
+            // Get the existing entity
+            var existingJobApply = await JobApplyRepository.GetByIdAndUserIdAsync(JobId, CurrentUserId);
+            if (existingJobApply == null)
+            {
+                ErrorMessage = "Job application not found";
+                return;
+            }
+
+            // Update the entity with form data
+            existingJobApply.UpdateFromFormViewModel(FormModel);
+
+            // Save changes
+            await JobApplyRepository.UpdateAsync(existingJobApply);
+
+            SuccessMessage = "Job application updated successfully!";
+            
+            // Wait a moment to show success message, then redirect
+            await Task.Delay(1500);
+            Navigation.NavigateTo("/dashboard");
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error updating job application: {ex.Message}";
+        }
+        finally
+        {
+            IsSubmitting = false;
+        }
+    }
+
+    private async Task ConfirmDelete()
+    {
+        if (FormModel == null) return;
+
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", 
+            $"Are you sure you want to delete the application for {FormModel.CompanyName}? This action cannot be undone.");
+
+        if (confirmed)
+        {
+            await DeleteJobApplication();
+        }
+    }
+
+    private async Task DeleteJobApplication()
+    {
+        if (string.IsNullOrEmpty(CurrentUserId)) return;
+
+        try
+        {
+            var success = await JobApplyRepository.DeleteAsync(JobId, CurrentUserId);
+            if (success)
+            {
+                Navigation.NavigateTo("/dashboard");
+            }
+            else
+            {
+                ErrorMessage = "Failed to delete the job application. Please try again.";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error deleting job application: {ex.Message}";
+        }
+    }
+
+    private static string GetStatusDisplay(JobStatus status) => status switch
+    {
+        JobStatus.NotApplied => "Not Applied",
+        JobStatus.Applied => "Applied",
+        JobStatus.InProgress => "In Progress",
+        JobStatus.WaitingResponse => "Waiting Response",
+        JobStatus.WaitingJobOffer => "Waiting Job Offer",
+        JobStatus.Accepted => "Accepted",
+        JobStatus.Denied => "Denied",
+        JobStatus.Failed => "Failed",
+        _ => status.ToString()
+    };
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
+
+    [Inject]
+    private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+}

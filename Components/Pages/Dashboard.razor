@@ -1,0 +1,279 @@
+@page "/dashboard"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@using Odysseus.Application.Interfaces
+@using Odysseus.Application.Services
+@using Odysseus.Application.ViewModels
+@using Odysseus.Data
+@using Odysseus.Domain.Enums
+@attribute [Authorize]
+@inject IJobApplyRepository JobApplyRepository
+@inject UserManager<ApplicationUser> UserManager
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
+
+<PageTitle>Dashboard - Odysseus</PageTitle>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h2">Job Application Dashboard</h1>
+                <a href="/jobs/new" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Add New Application
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @if (IsLoading)
+    {
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (DashboardData != null)
+    {
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card text-white bg-primary">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Total Applications</h5>
+                                <h2 class="mb-0">@DashboardData.TotalApplications</h2>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="bi bi-file-earmark-text fs-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-white bg-warning">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Pending</h5>
+                                <h2 class="mb-0">@DashboardData.PendingApplications</h2>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="bi bi-clock fs-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-white bg-success">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Accepted</h5>
+                                <h2 class="mb-0">@DashboardData.AcceptedApplications</h2>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="bi bi-check-circle fs-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-white bg-info">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Success Rate</h5>
+                                <h2 class="mb-0">@DashboardData.SuccessRate%</h2>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="bi bi-graph-up fs-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Message -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> @DashboardData.SummaryMessage
+                </div>
+            </div>
+        </div>
+
+        @if (DashboardData.HasApplications)
+        {
+            <!-- Job Applications Table -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Your Job Applications</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Company</th>
+                                            <th>Role</th>
+                                            <th>Country</th>
+                                            <th>Date Applied</th>
+                                            <th>Status</th>
+                                            <th>Days Since</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var job in DashboardData.JobApplications)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <strong>@job.CompanyName</strong>
+                                                    @if (job.IsRecent)
+                                                    {
+                                                        <span class="badge bg-info ms-1">New</span>
+                                                    }
+                                                </td>
+                                                <td>@job.JobRole</td>
+                                                <td>@job.CompanyCountry</td>
+                                                <td>@job.DateOfApply.ToString("MMM dd, yyyy")</td>
+                                                <td>
+                                                    <span class="@job.StatusBadgeClass">@job.StatusDisplay</span>
+                                                </td>
+                                                <td>@job.DaysSinceApply days</td>
+                                                <td>
+                                                    <div class="btn-group" role="group">
+                                                        <a href="/jobs/view/@job.Id" class="btn btn-sm btn-outline-primary">
+                                                            <i class="bi bi-eye"></i>
+                                                        </a>
+                                                        <a href="/jobs/edit/@job.Id" class="btn btn-sm btn-outline-secondary">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </a>
+                                                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                                @onclick="() => ConfirmDelete(job.Id, job.CompanyName)">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <!-- Empty State -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body text-center py-5">
+                            <i class="bi bi-briefcase display-1 text-muted"></i>
+                            <h3 class="mt-3">No Job Applications Yet</h3>
+                            <p class="text-muted">Start tracking your job search journey by adding your first application.</p>
+                            <a href="/jobs/new" class="btn btn-primary btn-lg">
+                                <i class="bi bi-plus-circle"></i> Add Your First Application
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private DashboardViewModel? DashboardData;
+    private bool IsLoading = true;
+    private string? CurrentUserId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user?.Identity?.IsAuthenticated == true)
+            {
+                CurrentUserId = UserManager.GetUserId(user);
+                if (!string.IsNullOrEmpty(CurrentUserId))
+                {
+                    await LoadDashboardData();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // Log error
+            Console.WriteLine($"Error loading dashboard: {ex.Message}");
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private async Task LoadDashboardData()
+    {
+        if (string.IsNullOrEmpty(CurrentUserId)) return;
+
+        var jobApplications = await JobApplyRepository.GetByUserIdAsync(CurrentUserId);
+        DashboardData = jobApplications.ToDashboardViewModel();
+    }
+
+    private async Task ConfirmDelete(int jobId, string companyName)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", 
+            $"Are you sure you want to delete the application for {companyName}? This action cannot be undone.");
+
+        if (confirmed)
+        {
+            await DeleteJobApplication(jobId);
+        }
+    }
+
+    private async Task DeleteJobApplication(int jobId)
+    {
+        if (string.IsNullOrEmpty(CurrentUserId)) return;
+
+        try
+        {
+            var success = await JobApplyRepository.DeleteAsync(jobId, CurrentUserId);
+            if (success)
+            {
+                // Reload the dashboard data
+                await LoadDashboardData();
+                StateHasChanged();
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "Failed to delete the job application. Please try again.");
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Error deleting job application: {ex.Message}");
+        }
+    }
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
+
+    [Inject]
+    private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
+}

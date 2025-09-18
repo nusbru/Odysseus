@@ -1,0 +1,29 @@
+using Microsoft.AspNetCore.Identity;
+using Odysseus.Domain.Entities;
+
+namespace Odysseus.Data;
+
+// Add profile data for application users by adding properties to the ApplicationUser class
+public class ApplicationUser : IdentityUser
+{
+    /// <summary>
+    /// Collection of job applications for this user
+    /// </summary>
+    public virtual ICollection<JobApply> JobApplications { get; set; } = new List<JobApply>();
+
+    /// <summary>
+    /// User's preferred name for display
+    /// </summary>
+    public string? DisplayName { get; set; }
+
+    /// <summary>
+    /// When the user account was created
+    /// </summary>
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    /// <summary>
+    /// When the user last updated their profile
+    /// </summary>
+    public DateTime? LastUpdatedAt { get; set; }
+}
+
