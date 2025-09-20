@@ -152,17 +152,26 @@
                                                 </td>
                                                 <td>@job.DaysSinceApply days</td>
                                                 <td>
-                                                    <div class="btn-group" role="group">
-                                                        <a href="/jobs/view/@job.Id" class="btn btn-sm btn-outline-primary">
-                                                            <i class="bi bi-eye"></i>
+                                                    <div class="d-flex gap-3" role="group" aria-label="Job actions">
+                                                        <a href="/jobs/view/@job.Id"
+                                                           class="text-info text-decoration-none"
+                                                           title="View details"
+                                                           data-bs-toggle="tooltip">
+                                                            <i class="bi bi-eye-fill"></i> View
                                                         </a>
-                                                        <a href="/jobs/edit/@job.Id" class="btn btn-sm btn-outline-secondary">
-                                                            <i class="bi bi-pencil"></i>
+                                                        <a href="/jobs/edit/@job.Id"
+                                                           class="text-warning text-decoration-none"
+                                                           title="Edit application"
+                                                           data-bs-toggle="tooltip">
+                                                            <i class="bi bi-pencil-fill"></i> Edit
                                                         </a>
-                                                        <button type="button" class="btn btn-sm btn-outline-danger" 
-                                                                @onclick="() => ConfirmDelete(job.Id, job.CompanyName)">
-                                                            <i class="bi bi-trash"></i>
-                                                        </button>
+                                                        <a href="javascript:void(0)"
+                                                           class="text-danger text-decoration-none"
+                                                           title="Delete application"
+                                                           data-bs-toggle="tooltip"
+                                                           @onclick="() => ConfirmDelete(job.Id, job.CompanyName)">
+                                                            <i class="bi bi-trash3-fill"></i> Delete
+                                                        </a>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -238,7 +247,7 @@
 
     private async Task ConfirmDelete(int jobId, string companyName)
     {
-        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", 
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm",
             $"Are you sure you want to delete the application for {companyName}? This action cannot be undone.");
 
         if (confirmed)
