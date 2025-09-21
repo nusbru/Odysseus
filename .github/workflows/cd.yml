@@ -1,0 +1,248 @@
+name: CD - Continuous Deployment
+
+on:
+  workflow_run:
+    workflows: ["CI - Continuous Integration"]
+    types:
+      - completed
+    branches: [ main ]
+
+  # Manual trigger for releases
+  workflow_dispatch:
+    inputs:
+      force_deploy:
+        description: 'Force deployment even if CI failed'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  DOCKER_IMAGE_NAME: odysseus-job-tracker
+  REGISTRY: docker.io
+
+jobs:
+  # Check CI Status
+  check-ci-status:
+    name: Check CI Status
+    runs-on: ubuntu-latest
+    outputs:
+      ci-success: ${{ steps.ci-check.outputs.success }}
+
+    steps:
+    - name: Check CI workflow result
+      id: ci-check
+      run: |
+        if [[ "${{ github.event.workflow_run.conclusion }}" == "success" ]] || [[ "${{ github.event.inputs.force_deploy }}" == "true" ]]; then
+          echo "success=true" >> $GITHUB_OUTPUT
+          echo "✅ CI passed or force deployment requested"
+        else
+          echo "success=false" >> $GITHUB_OUTPUT
+          echo "❌ CI failed and no force deployment"
+        fi
+
+  # Build and Push Docker Image
+  build-and-push:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest
+    needs: check-ci-status
+    if: needs.check-ci-status.outputs.ci-success == 'true'
+    outputs:
+      image-digest: ${{ steps.build.outputs.digest }}
+      version-tag: ${{ steps.meta.outputs.version }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Generate version tag
+      id: version
+      run: |
+        # Generate version in format 1.0.{build_number}
+        BUILD_NUMBER=${{ github.run_number }}
+        VERSION_TAG="1.0.${BUILD_NUMBER}"
+        echo "tag=${VERSION_TAG}" >> $GITHUB_OUTPUT
+        echo "Generated version tag: ${VERSION_TAG}"
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}
+        tags: |
+          # Latest tag for main branch
+          type=raw,value=latest,enable={{is_default_branch}}
+          # Version tag with build number
+          type=raw,value=${{ steps.version.outputs.tag }}
+          # Branch name
+          type=ref,event=branch
+          # SHA for traceability
+          type=sha,prefix={{branch}}-
+        labels: |
+          org.opencontainers.image.title=${{ env.DOCKER_IMAGE_NAME }}
+          org.opencontainers.image.description=Odysseus Job Application Tracker
+          org.opencontainers.image.version=${{ steps.version.outputs.tag }}
+          org.opencontainers.image.vendor=nusbru
+
+    - name: Build and push Docker image
+      id: build
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          BUILDKIT_INLINE_CACHE=1
+          VERSION=${{ steps.version.outputs.tag }}
+
+    - name: Update Docker Hub description
+      uses: peter-evans/dockerhub-description@v4
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+        repository: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}
+        readme-filepath: ./README.md
+
+  # Verify Deployment
+  verify-deployment:
+    name: Verify Docker Image
+    runs-on: ubuntu-latest
+    needs: build-and-push
+
+    steps:
+    - name: Verify image exists on Docker Hub
+      run: |
+        IMAGE_NAME="${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}"
+
+        echo "🔍 Verifying images on Docker Hub..."
+
+        # Check latest tag
+        echo "Checking latest tag..."
+        docker pull ${IMAGE_NAME}:latest
+
+        # Check version tag
+        VERSION_TAG="${{ needs.build-and-push.outputs.version-tag }}"
+        echo "Checking version tag: ${VERSION_TAG}"
+        docker pull ${IMAGE_NAME}:${VERSION_TAG}
+
+        echo "✅ All images verified successfully!"
+
+    - name: Test Docker image functionality
+      run: |
+        IMAGE_NAME="${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest"
+
+        echo "🧪 Testing Docker image functionality..."
+
+        # Run container in background
+        docker run --rm -d --name odysseus-cd-test -p 8080:80 ${IMAGE_NAME}
+
+        # Wait for application to start
+        sleep 15
+
+        # Test if application responds
+        if curl -f http://localhost:8080; then
+          echo "✅ Application is responding correctly!"
+        else
+          echo "❌ Application is not responding!"
+          docker logs odysseus-cd-test
+          exit 1
+        fi
+
+        # Clean up
+        docker stop odysseus-cd-test
+
+  # Create GitHub Release
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [build-and-push, verify-deployment]
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ needs.build-and-push.outputs.version-tag }}
+        release_name: Release v${{ needs.build-and-push.outputs.version-tag }}
+        body: |
+          ## 🚀 Release v${{ needs.build-and-push.outputs.version-tag }}
+
+          ### Docker Images Published:
+          - `${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest`
+          - `${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.build-and-push.outputs.version-tag }}`
+
+          ### Quick Start:
+          ```bash
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.build-and-push.outputs.version-tag }}
+          docker run -p 8080:80 ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.build-and-push.outputs.version-tag }}
+          ```
+
+          ### Changes in this release:
+          - Built from commit: ${{ github.sha }}
+          - Build number: ${{ github.run_number }}
+          - Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        draft: false
+        prerelease: false
+
+  # Deployment Summary
+  deployment-summary:
+    name: Deployment Summary
+    runs-on: ubuntu-latest
+    needs: [build-and-push, verify-deployment, create-release]
+    if: always()
+
+    steps:
+    - name: Print deployment summary
+      run: |
+        echo "## 📋 Deployment Summary"
+        echo ""
+        echo "### ✅ Successfully Published Images:"
+        echo "- **Latest**: \`${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest\`"
+        echo "- **Version**: \`${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.build-and-push.outputs.version-tag }}\`"
+        echo ""
+        echo "### 📊 Build Information:"
+        echo "- **Build Number**: ${{ github.run_number }}"
+        echo "- **Commit SHA**: ${{ github.sha }}"
+        echo "- **Branch**: ${{ github.ref_name }}"
+        echo "- **Actor**: ${{ github.actor }}"
+        echo ""
+        echo "### 🚀 Quick Deploy Commands:"
+        echo "\`\`\`bash"
+        echo "# Pull and run latest"
+        echo "docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest"
+        echo "docker run -p 8080:80 ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest"
+        echo ""
+        echo "# Pull and run specific version"
+        echo "docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.build-and-push.outputs.version-tag }}"
+        echo "docker run -p 8080:80 ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.build-and-push.outputs.version-tag }}"
+        echo "\`\`\`"
+
+    - name: Notify deployment result
+      run: |
+        if [[ "${{ needs.build-and-push.result }}" == "success" && "${{ needs.verify-deployment.result }}" == "success" ]]; then
+          echo "🎉 CD Pipeline completed successfully!"
+          echo "Docker images are available on Docker Hub"
+        else
+          echo "❌ CD Pipeline failed!"
+          echo "Check the logs for more details"
+          exit 1
+        fi
