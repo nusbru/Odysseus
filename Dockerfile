@@ -25,8 +25,10 @@ RUN dotnet publish "Odysseus.csproj" -c Release -o /app/publish /p:UseAppHost=fa
 FROM base AS final
 WORKDIR /app
 
-# Create the Data directory for SQLite database
-RUN mkdir -p /app/Data
+# Create the Data directory for SQLite database with proper permissions
+RUN mkdir -p /app/Data && \
+    chmod 755 /app/Data && \
+    chown -R app:app /app/Data || true
 
 # Copy the published application
 COPY --from=publish /app/publish .
@@ -37,5 +39,8 @@ ENV ASPNETCORE_URLS=http://+:80
 
 # Configure the database path
 ENV ConnectionStrings__DefaultConnection="DataSource=/app/Data/app.db;Cache=Shared"
+
+# Switch to non-root user for better security (if available)
+# USER app
 
 ENTRYPOINT ["dotnet", "Odysseus.dll"]
