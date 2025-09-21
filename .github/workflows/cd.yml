@@ -51,17 +51,3 @@ jobs:
           tags: ${{ steps.tags.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: v${{ steps.tags.outputs.version }}
-          name: v${{ steps.tags.outputs.version }}
-          body: |
-            Docker image: `${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ steps.tags.outputs.version }}`
-
-            ```bash
-            docker run -p 8080:80 ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
-            ```
-          draft: false
-          prerelease: false
