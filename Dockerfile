@@ -25,13 +25,13 @@ RUN dotnet publish "Odysseus.csproj" -c Release -o /app/publish /p:UseAppHost=fa
 FROM base AS final
 WORKDIR /app
 
-# Create the Data directory for SQLite database with proper permissions
-RUN mkdir -p /app/Data && \
-    chmod 755 /app/Data && \
-    chown -R app:app /app/Data || true
-
-# Copy the published application
+# Copy the published application first
 COPY --from=publish /app/publish .
+
+# Create the Data directory for SQLite database with proper permissions
+# Do this after copying to ensure proper ownership
+RUN mkdir -p /app/Data && \
+    chmod 777 /app/Data
 
 # Set up environment for production
 ENV ASPNETCORE_ENVIRONMENT=Production
