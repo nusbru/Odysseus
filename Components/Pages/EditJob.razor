@@ -68,194 +68,153 @@
                                     </h5>
                                 </div>
                                 <div class="card-body">
-                                <div class="alert alert-success" role="alert">
-                                    <i class="bi bi-check-circle"></i> @SuccessMessage
-                                </div>
-                            }
-
-                            <div class="row">
-                                <!-- Company Information -->
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label for="companyName" class="form-label">Company Name *</label>
-                                        <InputText @bind-Value="FormModel.CompanyName"
-                                                  class="form-control"
-                                                  id="companyName"
-                                                  placeholder="Enter company name" />
-                                        <ValidationMessage For="@(() => FormModel.CompanyName)" class="text-danger" />
+                                    <div class="alert alert-success" role="alert">
+                                        <i class="bi bi-check-circle"></i> @SuccessMessage
                                     </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label for="companyCountry" class="form-label">Company Country *</label>
-                                        <InputText @bind-Value="FormModel.CompanyCountry"
-                                                  class="form-control"
-                                                  id="companyCountry"
-                                                  placeholder="Enter country" />
-                                        <ValidationMessage For="@(() => FormModel.CompanyCountry)" class="text-danger" />
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label for="jobRole" class="form-label">Job Role *</label>
-                                        <InputText @bind-Value="FormModel.JobRole"
-                                                  class="form-control"
-                                                  id="jobRole"
-                                                  placeholder="Enter job role" />
-                                        <ValidationMessage For="@(() => FormModel.JobRole)" class="text-danger" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <!-- Job Details -->
-                                <div class="col-md-8">
-                                    <div class="mb-3">
-                                        <label for="jobLink" class="form-label">Job Link</label>
-                                        <InputText @bind-Value="FormModel.JobLink"
-                                                  class="form-control"
-                                                  id="jobLink"
-                                                  placeholder="https://..." />
-                                        <ValidationMessage For="@(() => FormModel.JobLink)" class="text-danger" />
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label for="dateOfApply" class="form-label">Date of Apply *</label>
-                                        <InputDate @bind-Value="FormModel.DateOfApply"
-                                                  class="form-control"
-                                                  id="dateOfApply" />
-                                        <ValidationMessage For="@(() => FormModel.DateOfApply)" class="text-danger" />
-                                    </div>
-                            </div>
-
-                            <div class="row">
-                                <!-- Application Status and Details -->
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="status" class="form-label">Status *</label>
-                                        <InputSelect @bind-Value="FormModel.Status" class="form-select" id="status">
-                                            @foreach (var status in Enum.GetValues<JobStatus>())
-                                            {
-                                                <option value="@status">@GetStatusDisplay(status)</option>
-                                            }
-                                        </InputSelect>
-                                        <ValidationMessage For="@(() => FormModel.Status)" class="text-danger" />
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="mb-3">
-                                        <label for="numberOfPhases" class="form-label">Number of Phases</label>
-                                        <InputNumber @bind-Value="FormModel.NumberOfPhases"
-                                                    class="form-control"
-                                                    id="numberOfPhases"
-                                                    min="1" max="10" />
-                                        <ValidationMessage For="@(() => FormModel.NumberOfPhases)" class="text-danger" />
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="mb-3">
-                                        <label class="form-label">Requirements</label>
-                                        <div class="d-flex flex-column">
-                                            <div class="form-check mb-1">
-                                                <InputCheckbox @bind-Value="FormModel.RequiresSponsorship"
-                                                              class="form-check-input"
-                                                              id="requiresSponsorship" />
-                                                <label class="form-check-label" for="requiresSponsorship">
-                                                    Sponsorship
-                                                </label>
-                                            </div>
-                                            <div class="form-check">
-                                                <InputCheckbox @bind-Value="FormModel.RequiresRelocation"
-                                                              class="form-check-input"
-                                                              id="requiresRelocation" />
-                                                <label class="form-check-label" for="requiresRelocation">
-                                                    Relocation
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label for="numberOfPhases" class="form-label">Number of Phases</label>
-                                        <InputNumber @bind-Value="FormModel.NumberOfPhases"
-                                                    class="form-control"
-                                                    id="numberOfPhases"
-                                                    min="1" max="10" />
-                                        <ValidationMessage For="@(() => FormModel.NumberOfPhases)" class="text-danger" />
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label for="status" class="form-label">Status *</label>
-                                        <InputSelect @bind-Value="FormModel.Status" class="form-select" id="status">
-                                            @foreach (var status in Enum.GetValues<JobStatus>())
-                                            {
-                                                <option value="@status">@GetStatusDisplay(status)</option>
-                                            }
-                                        </InputSelect>
-                                        <ValidationMessage For="@(() => FormModel.Status)" class="text-danger" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <!-- Additional Requirements -->
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <div class="form-check">
-                                            <InputCheckbox @bind-Value="FormModel.RequiresSponsorship"
-                                                          class="form-check-input"
-                                                          id="requiresSponsorship" />
-                                            <label class="form-check-label" for="requiresSponsorship">
-                                                Requires Sponsorship
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <div class="form-check">
-                                            <InputCheckbox @bind-Value="FormModel.RequiresRelocation"
-                                                          class="form-check-input"
-                                                          id="requiresRelocation" />
-                                            <label class="form-check-label" for="requiresRelocation">
-                                                Requires Relocation
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Notes -->
-                            <div class="mb-3">
-                                <label for="notes" class="form-label">Notes</label>
-                                <InputTextArea @bind-Value="FormModel.Notes"
-                                              class="form-control"
-                                              id="notes"
-                                              rows="4"
-                                              placeholder="Add any additional notes about this application..." />
-                                <ValidationMessage For="@(() => FormModel.Notes)" class="text-danger" />
-                            </div>
-
-                            <!-- Form Actions -->
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <a href="/dashboard" class="btn btn-secondary me-2">Cancel</a>
-                                    <button type="button" class="btn btn-danger" @onclick="ConfirmDelete">
-                                        <i class="bi bi-trash"></i> Delete
-                                    </button>
-                                </div>
-                                <button type="submit" class="btn btn-primary" disabled="@IsSubmitting">
-                                    @if (IsSubmitting)
-                                    {
-                                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
                                     }
-                                    <i class="bi bi-check-circle"></i> @FormModel.SubmitButtonText
-                                </button>
-                            </div>
+
+                                    <div class="row">
+                                        <!-- Company Information -->
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="companyName" class="form-label">Company Name *</label>
+                                                <InputText @bind-Value="FormModel.CompanyName" class="form-control"
+                                                    id="companyName" placeholder="Enter company name" />
+                                                <ValidationMessage For="@(() => FormModel.CompanyName)"
+                                                    class="text-danger" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="companyCountry" class="form-label">Company Country *</label>
+                                                <InputText @bind-Value="FormModel.CompanyCountry" class="form-control"
+                                                    id="companyCountry" placeholder="Enter country" />
+                                                <ValidationMessage For="@(() => FormModel.CompanyCountry)"
+                                                    class="text-danger" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="jobRole" class="form-label">Job Role *</label>
+                                                <InputText @bind-Value="FormModel.JobRole" class="form-control" id="jobRole"
+                                                    placeholder="Enter job role" />
+                                                <ValidationMessage For="@(() => FormModel.JobRole)" class="text-danger" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <!-- Job Details -->
+                                        <div class="col-md-8">
+                                            <div class="mb-3">
+                                                <label for="jobLink" class="form-label">Job Link</label>
+                                                <InputText @bind-Value="FormModel.JobLink" class="form-control" id="jobLink"
+                                                    placeholder="https://..." />
+                                                <ValidationMessage For="@(() => FormModel.JobLink)" class="text-danger" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="dateOfApply" class="form-label">Date of Apply *</label>
+                                                <InputDate @bind-Value="FormModel.DateOfApply" class="form-control"
+                                                    id="dateOfApply" />
+                                                <ValidationMessage For="@(() => FormModel.DateOfApply)"
+                                                    class="text-danger" />
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <!-- Application Status and Details -->
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label for="status" class="form-label">Status *</label>
+                                                    <InputSelect @bind-Value="FormModel.Status" class="form-select"
+                                                        id="status">
+                                                        @foreach (var status in Enum.GetValues<JobStatus>())
+                                                        {
+                                                            <option value="@status">@GetStatusDisplay(status)</option>
+                                                        }
+                                                    </InputSelect>
+                                                    <ValidationMessage For="@(() => FormModel.Status)"
+                                                        class="text-danger" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="mb-3">
+                                                    <label for="numberOfPhases" class="form-label">Number of Phases</label>
+                                                    <InputNumber @bind-Value="FormModel.NumberOfPhases" class="form-control"
+                                                        id="numberOfPhases" min="1" max="10" />
+                                                    <ValidationMessage For="@(() => FormModel.NumberOfPhases)"
+                                                        class="text-danger" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Sponsorship & Relocation</label>
+                                                    <div class="d-flex flex-column">
+                                                        <div class="form-check mb-1">
+                                                            <InputCheckbox @bind-Value="FormModel.RequiresSponsorship"
+                                                                class="form-check-input" id="requiresSponsorship" />
+                                                            <label class="form-check-label" for="requiresSponsorship">
+                                                                Sponsorship
+                                                            </label>
+                                                        </div>
+                                                        <div class="form-check">
+                                                            <InputCheckbox @bind-Value="FormModel.RequiresRelocation"
+                                                                class="form-check-input" id="requiresRelocation" />
+                                                            <label class="form-check-label" for="requiresRelocation">
+                                                                Relocation
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="numberOfPhases" class="form-label">Number of Phases</label>
+                                                <InputNumber @bind-Value="FormModel.NumberOfPhases" class="form-control"
+                                                    id="numberOfPhases" min="1" max="10" />
+                                                <ValidationMessage For="@(() => FormModel.NumberOfPhases)"
+                                                    class="text-danger" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="status" class="form-label">Status *</label>
+                                                <InputSelect @bind-Value="FormModel.Status" class="form-select" id="status">
+                                                    @foreach (var status in Enum.GetValues<JobStatus>())
+                                                    {
+                                                        <option value="@status">@GetStatusDisplay(status)</option>
+                                                    }
+                                                </InputSelect>
+                                                <ValidationMessage For="@(() => FormModel.Status)" class="text-danger" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="notes" class="form-label">Notes</label>
+                                        <InputTextArea @bind-Value="FormModel.Notes" class="form-control" id="notes"
+                                            rows="4" placeholder="Add any additional notes about this application..." />
+                                        <ValidationMessage For="@(() => FormModel.Notes)" class="text-danger" />
+                                    </div>
+
+                                    <!-- Form Actions -->
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <a href="/dashboard" class="btn btn-secondary me-2">Cancel</a>
+                                            <button type="button" class="btn btn-danger" @onclick="ConfirmDelete">
+                                                <i class="bi bi-trash"></i> Delete
+                                            </button>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary" disabled="@IsSubmitting">
+                                            @if (IsSubmitting)
+                                            {
+                                                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                            }
+                                            <i class="bi bi-check-circle"></i> @FormModel.SubmitButtonText
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -360,7 +319,7 @@
         if (FormModel == null) return;
 
         var confirmed = await JSRuntime.InvokeAsync<bool>("confirm",
-            $"Are you sure you want to delete the application for {FormModel.CompanyName}? This action cannot be undone.");
+        $"Are you sure you want to delete the application for {FormModel.CompanyName}? This action cannot be undone.");
 
         if (confirmed)
         {
