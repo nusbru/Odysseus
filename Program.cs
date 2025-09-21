@@ -42,7 +42,73 @@ builder.Services.AddScoped<IJobApplyRepository, JobApplyRepository>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Automatically apply database migrations on startup
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
+    try
+    {
+        logger.LogInformation("🗄️ Checking database and migrations status...");
+
+        // Check if database exists
+        var databaseExists = context.Database.CanConnect();
+
+        if (!databaseExists)
+        {
+            logger.LogInformation("🆕 Database does not exist - will be created with migrations");
+        }
+
+        // Get pending migrations
+        var pendingMigrations = context.Database.GetPendingMigrations().ToList();
+
+        if (pendingMigrations.Any())
+        {
+            logger.LogInformation("🚀 Applying {Count} pending migrations: {Migrations}",
+                pendingMigrations.Count,
+                string.Join(", ", pendingMigrations));
+
+            // Apply all pending migrations (this will create the database if it doesn't exist)
+            context.Database.Migrate();
+
+            logger.LogInformation("✅ Database migrations applied successfully!");
+        }
+        else
+        {
+            logger.LogInformation("✅ Database is up to date - no pending migrations");
+        }
+
+        // Log current migration status
+        var appliedMigrations = context.Database.GetAppliedMigrations().ToList();
+        logger.LogInformation("📊 Total applied migrations: {Count}", appliedMigrations.Count);
+
+        // Verify database connection
+        logger.LogInformation("🔍 Verifying database connection...");
+        var canConnect = context.Database.CanConnect();
+        if (canConnect)
+        {
+            logger.LogInformation("✅ Database connection verified successfully");
+        }
+        else
+        {
+            logger.LogWarning("⚠️ Database connection verification failed");
+        }
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "❌ Error occurred while applying database migrations");
+
+        // In production, you might want to throw to prevent startup with broken database
+        // In development, you might want to continue for troubleshooting
+        if (app.Environment.IsProduction())
+        {
+            throw;
+        }
+
+        logger.LogWarning("⚠️ Continuing startup despite migration error (Development mode)");
+    }
+}// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
