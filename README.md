@@ -1,6 +1,6 @@
 # 🧭 Odysseus - Job Application Tracker
 
-A modern web application built with **Blazor Server** to help job seekers track and manage their job applications throughout their career journey.
+A modern web application built with **Blazor Server** and **PostgreSQL** to help job seekers track and manage their job applications throughout their career journey. Features a comprehensive dashboard with analytics and visualization capabilities.
 
 ## 📋 Table of Contents
 
@@ -9,8 +9,9 @@ A modern web application built with **Blazor Server** to help job seekers track 
 - [Architecture](#-architecture)
 - [Getting Started](#-getting-started)
 - [Project Structure](#-project-structure)
-- [Database Schema](#-database-schema)
+- [Database Configuration](#-database-configuration)
 - [Docker Support](#-docker-support)
+- [Development](#-development)
 - [Contributing](#-contributing)
 
 ## ✨ Features
@@ -31,20 +32,24 @@ A modern web application built with **Blazor Server** to help job seekers track 
 - Application timeline with creation and update timestamps
 
 ### 📈 Dashboard & Analytics
-- Real-time statistics cards
-- Success rate calculation
-- Recent applications highlighting
-- Status-based filtering and organization
-- Empty state guidance for new users
+- **Comprehensive Statistics**: Total applications, pending, in-progress, and rejected counts
+- **Visual Analytics**: Interactive charts and data visualization
+- **Country Distribution**: Geographic analysis of job applications
+- **Real-time Updates**: Live dashboard with dynamic statistics
+- **Status Tracking**: Detailed application status monitoring
+- **Empty State Guidance**: Helpful onboarding for new users
 
 ## 🚀 Technology Stack
 
 - **Framework**: ASP.NET Core 9.0 with Blazor Server
-- **Database**: SQLite with Entity Framework Core
+- **Database**: PostgreSQL 16 with Entity Framework Core
+- **Database Provider**: Npgsql.EntityFrameworkCore.PostgreSQL
 - **Authentication**: ASP.NET Core Identity
-- **UI Framework**: Bootstrap 5 with custom styling
+- **UI Framework**: Bootstrap 5 with Bootstrap Icons
+- **Visualization**: Chart.js for interactive analytics
 - **Architecture**: Clean Architecture with SOLID principles
-- **Containerization**: Docker support included
+- **Containerization**: Docker Compose with PostgreSQL and app containers
+- **Development**: Hot reload, Entity Framework migrations
 
 ## 🏗️ Architecture
 
@@ -74,37 +79,61 @@ The application follows **Clean Architecture** principles with clear separation 
 ### Prerequisites
 
 - [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
+- [PostgreSQL 16+](https://www.postgresql.org/download/) or [Docker](https://www.docker.com/get-started)
 - [Entity Framework Core Tools](https://docs.microsoft.com/en-us/ef/core/cli/dotnet)
 
-### Installation
+### Quick Start with Docker (Recommended)
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/Odysseus.git
+   git clone https://github.com/nusbru/Odysseus.git
    cd Odysseus
    ```
 
-2. **Install EF Core tools** (if not already installed)
+2. **Start with Docker Compose**
    ```bash
-   dotnet tool install --global dotnet-ef
+   docker-compose up -d
    ```
 
-3. **Restore dependencies**
+3. **Access the application**
+   - **Web App**: http://localhost:8080
+   - **Database**: PostgreSQL on localhost:5432
+
+### Manual Setup (Development)
+
+1. **Clone and setup**
    ```bash
+   git clone https://github.com/nusbru/Odysseus.git
+   cd Odysseus
    dotnet restore
    ```
 
-4. **Apply database migrations**
+2. **Database Setup**
+   
+   **Option A: Use Docker for PostgreSQL only**
    ```bash
+   docker run --name odysseus-postgres -e POSTGRES_DB=odysseus -e POSTGRES_USER=odysseus_user -e POSTGRES_PASSWORD=odysseus_password -p 5432:5432 -d postgres:16-alpine
+   ```
+
+   **Option B: Local PostgreSQL**
+   - Install PostgreSQL 16+
+   - Create database: `odysseus`
+   - Create user: `odysseus_user` with password: `odysseus_password`
+
+3. **Apply migrations**
+   ```bash
+   dotnet tool install --global dotnet-ef
    dotnet ef database update
    ```
 
-5. **Run the application**
+4. **Run the application**
    ```bash
    dotnet run
    ```
 
-6. **Open your browser** and navigate to `http://localhost:5232`
+5. **Access the application**
+   - **HTTP**: http://localhost:5232
+   - **HTTPS**: https://localhost:7085
 
 ### First Steps
 
@@ -138,52 +167,163 @@ The application follows **Clean Architecture** principles with clear separation 
 
 ### UI Components
 
-- **`Components/Pages/Dashboard.razor`**: Main dashboard with statistics
+- **`Components/Pages/Dashboard.razor`**: Interactive dashboard with statistics and charts
 - **`Components/Pages/AddJob.razor`**: Job application creation form
 - **`Components/Pages/EditJob.razor`**: Job application editing form
 - **`Components/Pages/ViewJob.razor`**: Detailed job application view
+- **`Components/Pages/Home.razor`**: Landing page
+- **`Components/Layout/MainLayout.razor`**: Application layout
+- **`Components/Layout/NavMenu.razor`**: Navigation menu
 
 ### Application Status Flow
 
 ```
-Not Applied → Applied → In Progress → Waiting Response → Waiting Job Offer → Accepted/Denied/Failed
+Applied → In Progress → Waiting Response → Waiting Job Offer → Accepted/Denied/Failed
 ```
+
+## �️ Database Configuration
+
+### PostgreSQL Configuration
+
+The application uses PostgreSQL with the following default configuration:
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Database=odysseus;Username=odysseus_user;Password=odysseus_password;Port=5432"
+  }
+}
+```
+
+### Entity Framework Migrations
+
+- **Initial Migration**: `20250927145636_InitialCreate`
+- **Migration Commands**:
+  ```bash
+  dotnet ef migrations add <MigrationName>
+  dotnet ef database update
+  ```
+
+### Database Schema
+
+- **AspNetUsers**: User authentication and profiles
+- **AspNetRoles**: User roles and permissions
+- **JobApplications**: Core job application data
+- **Related tables**: Identity framework tables for authentication
 
 ## 🐳 Docker Support
 
-### Build and Run with Docker
+### Full Stack with Docker Compose (Recommended)
+
+```bash
+# Start PostgreSQL + Application
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+```
+
+### Docker Configuration
+
+- **PostgreSQL**: `postgres:16-alpine` on port 5432
+- **Application**: Custom .NET 9.0 image on port 8080
+- **Volumes**: PostgreSQL data persistence
+- **Networks**: Isolated container network
+- **Health checks**: Automatic PostgreSQL health monitoring
+
+### Manual Docker Build
 
 ```bash
 # Build the Docker image
 docker build -t odysseus .
 
-# Run the container
-docker run -p 8080:80 odysseus
+# Run with external PostgreSQL
+docker run -p 8080:80 -e ConnectionStrings__DefaultConnection="Host=host.docker.internal;Database=odysseus;Username=odysseus_user;Password=odysseus_password;Port=5432" odysseus
 ```
 
-The application will be available at `http://localhost:8080`
+## 🛠️ Development
 
-### Docker Configuration
+### Development Environment
 
-- **Base Image**: `mcr.microsoft.com/dotnet/aspnet:9.0`
-- **Build Image**: `mcr.microsoft.com/dotnet/sdk:9.0`
-- **Port**: Exposes port 80
-- **Database**: SQLite database persisted in `/app/Data/`
+- **Hot Reload**: Enabled for Blazor components
+- **Entity Framework**: Code-first migrations
+- **Logging**: Comprehensive logging with different levels
+- **Environment**: Development vs Production configurations
+
+### Database Development
+
+```bash
+# Add new migration
+dotnet ef migrations add NewFeature
+
+# Update database
+dotnet ef database update
+
+# Remove last migration (if not applied)
+dotnet ef migrations remove
+```
+
+### Adding New Features
+
+1. **Domain**: Add entities to `Domain/Entities/`
+2. **Repository**: Update `Application/Interfaces/` and `Infrastructure/Repositories/`
+3. **ViewModels**: Create DTOs in `Application/ViewModels/`
+4. **UI**: Add Blazor components in `Components/Pages/`
+5. **Migration**: Generate EF Core migration
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+1. **Fork** the repository
+2. **Clone** your fork locally
+3. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+4. **Setup** development environment:
+   ```bash
+   dotnet restore
+   docker-compose up -d postgres  # Start PostgreSQL only
+   dotnet ef database update
+   ```
+5. **Make** your changes and test thoroughly
+6. **Commit** your changes (`git commit -m 'Add some amazing feature'`)
+7. **Push** to the branch (`git push origin feature/amazing-feature`)
+8. **Open** a Pull Request with detailed description
 
-## 🙏 Acknowledgments
+### Development Guidelines
 
-- Built with [ASP.NET Core](https://docs.microsoft.com/en-us/aspnet/core/)
-- UI components from [Bootstrap 5](https://getbootstrap.com/)
-- Icons from [Bootstrap Icons](https://icons.getbootstrap.com/)
+- Follow [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html) principles
+- Write comprehensive tests for new features
+- Update documentation for significant changes
+- Use conventional commit messages
+- Ensure PostgreSQL compatibility for all database changes
+
+## � Features Overview
+
+### Current Dashboard Analytics
+- **Total Applications**: Complete count of all job applications
+- **Pending Applications**: Applications awaiting response
+- **In Progress Applications**: Active interview processes
+- **Rejected Applications**: Applications that were declined
+- **Interactive Charts**: Visual representation of application data
+- **Country Analysis**: Geographic distribution of applications
+
+### Application Management
+- **CRUD Operations**: Create, Read, Update, Delete job applications
+- **Status Tracking**: Multi-stage application process tracking
+- **Company Information**: Detailed company and role information
+- **Timeline Tracking**: Application dates and progress history
+- **Notes System**: Personal notes for each application
+
+## �🙏 Acknowledgments
+
+- Built with [ASP.NET Core 9.0](https://docs.microsoft.com/en-us/aspnet/core/)
+- Database powered by [PostgreSQL](https://www.postgresql.org/)
+- UI framework: [Bootstrap 5](https://getbootstrap.com/)
+- Icons: [Bootstrap Icons](https://icons.getbootstrap.com/)
+- Charts: [Chart.js](https://www.chartjs.org/)
+- Containerization: [Docker](https://www.docker.com/)
 
 ---
 
-**Happy job hunting!** 🎯
+**Track your journey to success!** 🎯 **Happy job hunting!** 🚀
