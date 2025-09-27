@@ -59,6 +59,16 @@ public class DashboardViewModel
     }
 
     /// <summary>
+    /// Gets applications finished (accepted or rejected)
+    /// </summary>
+    public int FinishedApplications => AcceptedApplications + RejectedApplications;
+
+    /// <summary>
+    /// Gets applications grouped by country
+    /// </summary>
+    public Dictionary<string, int> ApplicationsByCountry { get; set; } = new();
+
+    /// <summary>
     /// Gets whether there are any applications
     /// </summary>
     public bool HasApplications => TotalApplications > 0;
@@ -87,10 +97,10 @@ public class DashboardViewModel
     public void CalculateStatistics()
     {
         TotalApplications = JobApplications.Count();
-        
+
         var groupedByStatus = JobApplications.GroupBy(x => x.Status)
                                            .ToDictionary(g => g.Key, g => g.Count());
-        
+
         ApplicationsByStatus = groupedByStatus;
 
         PendingApplications = groupedByStatus.GetValueOrDefault(JobStatus.Applied, 0) +
@@ -98,10 +108,14 @@ public class DashboardViewModel
                             groupedByStatus.GetValueOrDefault(JobStatus.WaitingJobOffer, 0);
 
         InProgressApplications = groupedByStatus.GetValueOrDefault(JobStatus.InProgress, 0);
-        
+
         AcceptedApplications = groupedByStatus.GetValueOrDefault(JobStatus.Accepted, 0);
-        
+
         RejectedApplications = groupedByStatus.GetValueOrDefault(JobStatus.Denied, 0) +
                              groupedByStatus.GetValueOrDefault(JobStatus.Failed, 0);
+
+        // Calculate countries statistics
+        ApplicationsByCountry = JobApplications.GroupBy(x => x.CompanyCountry)
+                                             .ToDictionary(g => g.Key, g => g.Count());
     }
 }
