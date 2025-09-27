@@ -9,8 +9,8 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
 # Copy the project file and restore dependencies
-COPY ["Odysseus.csproj", "."]
-RUN dotnet restore "Odysseus.csproj"
+COPY ["Odysseus.csproj", "./"]
+RUN dotnet restore "./Odysseus.csproj"
 
 # Copy the entire source code and build the application
 COPY . .
@@ -31,10 +31,6 @@ COPY --from=publish /app/publish .
 # Set up environment for production
 ENV ASPNETCORE_ENVIRONMENT=Production
 ENV ASPNETCORE_URLS=http://+:80
-
-# Configure PostgreSQL connection string for production
-# This will be overridden by docker-compose or environment variables
-ENV ConnectionStrings__DefaultConnection="Host=postgres;Database=odysseus;Username=odysseus_user;Password=odysseus_password;Port=5432"
 
 # Switch to non-root user for better security (if available)
 # USER app
