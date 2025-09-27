@@ -22,7 +22,7 @@ services:
 
   odysseus-app:
     build:
-      context: .
+      context: ./src/Odysseus
       dockerfile: Dockerfile
     container_name: odysseus-app
     environment:
