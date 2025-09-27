@@ -1,0 +1,45 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: odysseus-postgres
+    environment:
+      POSTGRES_DB: odysseus
+      POSTGRES_USER: odysseus_user
+      POSTGRES_PASSWORD: odysseus_password
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odysseus_user -d odysseus"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - odysseus-network
+
+  odysseus-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: odysseus-app
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=odysseus;Username=odysseus_user;Password=odysseus_password;Port=5432
+    ports:
+      - "8080:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - odysseus-network
+
+volumes:
+  postgres_data:
+
+networks:
+  odysseus-network:
+    driver: bridge

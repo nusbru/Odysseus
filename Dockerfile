@@ -28,17 +28,13 @@ WORKDIR /app
 # Copy the published application first
 COPY --from=publish /app/publish .
 
-# Create the Data directory for SQLite database with proper permissions
-# Do this after copying to ensure proper ownership
-RUN mkdir -p /app/Data && \
-    chmod 777 /app/Data
-
 # Set up environment for production
 ENV ASPNETCORE_ENVIRONMENT=Production
 ENV ASPNETCORE_URLS=http://+:80
 
-# Configure the database path
-ENV ConnectionStrings__DefaultConnection="DataSource=/app/Data/app.db;Cache=Shared"
+# Configure PostgreSQL connection string for production
+# This will be overridden by docker-compose or environment variables
+ENV ConnectionStrings__DefaultConnection="Host=postgres;Database=odysseus;Username=odysseus_user;Password=odysseus_password;Port=5432"
 
 # Switch to non-root user for better security (if available)
 # USER app

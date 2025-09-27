@@ -55,7 +55,7 @@ public class JobApply
     /// </summary>
     public void ValidateBusinessRules()
     {
-        if (DateOfApply > DateTime.Now)
+        if (DateOfApply > DateTime.UtcNow)
         {
             throw new InvalidOperationException("Date of Apply cannot be in the future");
         }
