@@ -1,8 +1,5 @@
 @page "/jobs/new"
 @using Microsoft.AspNetCore.Authorization
-@using Microsoft.AspNetCore.Identity
-@using Odysseus.Application.Interfaces
-@using Odysseus.Data
 @attribute [Authorize]
 @inject IJobApplyRepository JobApplyRepository
 @inject UserManager<ApplicationUser> UserManager

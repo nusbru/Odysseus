@@ -1,11 +1,5 @@
 @page "/dashboard"
 @using Microsoft.AspNetCore.Authorization
-@using Microsoft.AspNetCore.Identity
-@using Odysseus.Application.Interfaces
-@using Odysseus.Application.Services
-@using Odysseus.Application.ViewModels
-@using Odysseus.Data
-@using Odysseus.Domain.Enums
 @attribute [Authorize]
 @inject IJobApplyRepository JobApplyRepository
 @inject UserManager<ApplicationUser> UserManager

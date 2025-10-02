@@ -1,7 +1,7 @@
-using Odysseus.Domain.Entities;
-using Odysseus.Domain.Enums;
+using Odysseus.Host.Domain.Entities;
+using Odysseus.Host.Domain.Enums;
 
-namespace Odysseus.Application.Interfaces;
+namespace Odysseus.Host.Application.Interfaces;
 
 /// <summary>
 /// Repository interface for JobApply entity operations

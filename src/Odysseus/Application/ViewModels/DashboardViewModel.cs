@@ -1,6 +1,6 @@
-using Odysseus.Domain.Enums;
+using Odysseus.Host.Domain.Enums;
 
-namespace Odysseus.Application.ViewModels;
+namespace Odysseus.Host.Application.ViewModels;
 
 /// <summary>
 /// ViewModel for the dashboard page displaying job application statistics and list

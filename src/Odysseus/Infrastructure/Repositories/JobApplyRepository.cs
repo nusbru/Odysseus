@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using Odysseus.Application.Interfaces;
-using Odysseus.Data;
-using Odysseus.Domain.Entities;
-using Odysseus.Domain.Enums;
+using Odysseus.Host.Application.Interfaces;
+using Odysseus.Host.Data;
+using Odysseus.Host.Domain.Entities;
+using Odysseus.Host.Domain.Enums;
 
-namespace Odysseus.Infrastructure.Repositories;
+namespace Odysseus.Host.Infrastructure.Repositories;
 
 /// <summary>
 /// Entity Framework implementation of IJobApplyRepository

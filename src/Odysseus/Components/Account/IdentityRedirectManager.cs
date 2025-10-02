@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Components;
 
-namespace Odysseus.Components.Account;
+namespace Odysseus.Host.Components.Account;
 
 internal sealed class IdentityRedirectManager(NavigationManager navigationManager)
 {

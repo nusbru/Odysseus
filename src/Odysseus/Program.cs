@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
-using Odysseus.Application.Interfaces;
-using Odysseus.Components;
-using Odysseus.Components.Account;
-using Odysseus.Data;
-using Odysseus.Infrastructure.Repositories;
+using Odysseus.Host.Application.Interfaces;
+using Odysseus.Host.Components;
+using Odysseus.Host.Components.Account;
+using Odysseus.Host.Data;
+using Odysseus.Host.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,6 +61,7 @@ else
 
 app.UseHttpsRedirection();
 
+app.UseStaticFiles();
 
 app.UseAntiforgery();
 

@@ -1,7 +1,7 @@
-using Odysseus.Application.ViewModels;
-using Odysseus.Domain.Entities;
+using Odysseus.Host.Application.ViewModels;
+using Odysseus.Host.Domain.Entities;
 
-namespace Odysseus.Application.Services;
+namespace Odysseus.Host.Application.Services;
 
 /// <summary>
 /// Service for mapping between domain entities and view models
@@ -112,7 +112,7 @@ public static class MappingService
         {
             JobApplications = viewModels
         };
-        
+
         dashboard.CalculateStatistics();
         return dashboard;
     }

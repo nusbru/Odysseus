@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using Odysseus.Domain.Enums;
+using Odysseus.Host.Domain.Enums;
 
-namespace Odysseus.Domain.Entities;
+namespace Odysseus.Host.Domain.Entities;
 
 /// <summary>
 /// Represents a job application in the system

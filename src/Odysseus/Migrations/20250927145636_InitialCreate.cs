@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Odysseus.Migrations
+namespace Odysseus.Host.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration

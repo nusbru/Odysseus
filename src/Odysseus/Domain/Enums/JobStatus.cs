@@ -1,4 +1,4 @@
-namespace Odysseus.Domain.Enums;
+namespace Odysseus.Host.Domain.Enums;
 
 /// <summary>
 /// Represents the status of a job application

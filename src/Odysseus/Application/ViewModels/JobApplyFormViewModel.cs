@@ -1,7 +1,8 @@
 using System.ComponentModel.DataAnnotations;
-using Odysseus.Domain.Enums;
+using Odysseus.Host.Domain.Enums;
+using Odysseus.Host.Domain.Entities;
 
-namespace Odysseus.Application.ViewModels;
+namespace Odysseus.Host.Application.ViewModels;
 
 /// <summary>
 /// ViewModel for creating and editing job applications

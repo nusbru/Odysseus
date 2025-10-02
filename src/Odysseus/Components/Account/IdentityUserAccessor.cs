@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
-using Odysseus.Data;
+using Odysseus.Host.Data;
 
-namespace Odysseus.Components.Account;
+namespace Odysseus.Host.Components.Account;
 
 internal sealed class IdentityUserAccessor(UserManager<ApplicationUser> userManager, IdentityRedirectManager redirectManager)
 {

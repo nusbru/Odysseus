@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
-using Odysseus.Components.Account.Pages;
-using Odysseus.Components.Account.Pages.Manage;
-using Odysseus.Data;
+using Odysseus.Host.Components.Account.Pages;
+using Odysseus.Host.Components.Account.Pages.Manage;
+using Odysseus.Host.Data;
 
 namespace Microsoft.AspNetCore.Routing;
 

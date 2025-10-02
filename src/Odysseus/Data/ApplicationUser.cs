@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
-using Odysseus.Domain.Entities;
+using Odysseus.Host.Domain.Entities;
 
-namespace Odysseus.Data;
+namespace Odysseus.Host.Data;
 
 // Add profile data for application users by adding properties to the ApplicationUser class
 public class ApplicationUser : IdentityUser
