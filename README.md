@@ -1,5 +1,9 @@
 # 🧭 Odysseus - Job Application Tracker
 
+<div align="center">
+  <img src="docs/logo.svg" alt="Odysseus Logo" width="500" height="500">
+</div>
+
 A modern web application built with **Blazor Server** and **PostgreSQL** to help job seekers track and manage their job applications throughout their career journey. Features a comprehensive dashboard with analytics and visualization capabilities.
 
 ## 📋 Table of Contents
