@@ -91,12 +91,12 @@
                             <div class="col-md-6">
                                 <div class="card bg-light">
                                     <div class="card-body">
-                                        <h6 class="card-title">Requirements</h6>
+                                        <h6 class="card-title">Other informations:</h6>
                                         <div class="mb-2">
-                                            @if (JobApplication.RequiresSponsorship)
+                                            @if (JobApplication.OfferSponsorship)
                                             {
                                                 <span class="badge bg-warning text-dark">
-                                                    <i class="bi bi-passport"></i> Sponsorship Required
+                                                    <i class="bi bi-passport"></i> Offers Sponsorship
                                                 </span>
                                             }
                                             else
@@ -107,10 +107,10 @@
                                             }
                                         </div>
                                         <div>
-                                            @if (JobApplication.RequiresRelocation)
+                                            @if (JobApplication.OfferRelocation)
                                             {
                                                 <span class="badge bg-warning text-dark">
-                                                    <i class="bi bi-house-door"></i> Relocation Required
+                                                    <i class="bi bi-house-door"></i> Offers Relocation
                                                 </span>
                                             }
                                             else

@@ -44,11 +44,11 @@ public class JobApplyFormViewModel
     [Display(Name = "Status")]
     public JobStatus Status { get; set; } = JobStatus.NotApplied;
 
-    [Display(Name = "Requires Sponsorship")]
-    public bool RequiresSponsorship { get; set; }
+    [Display(Name = "Offers Sponsorship")]
+    public bool OfferSponsorship { get; set; }
 
-    [Display(Name = "Requires Relocation")]
-    public bool RequiresRelocation { get; set; }
+    [Display(Name = "Offers Relocation")]
+    public bool OfferRelocation { get; set; }
 
     [StringLength(1000, ErrorMessage = "Notes cannot exceed 1000 characters")]
     [Display(Name = "Notes (Optional)")]

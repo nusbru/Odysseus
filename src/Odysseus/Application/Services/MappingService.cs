@@ -23,8 +23,8 @@ public static class MappingService
             DateOfApply = entity.DateOfApply,
             NumberOfPhases = entity.NumberOfPhases,
             Status = entity.Status,
-            RequiresSponsorship = entity.RequiresSponsorship,
-            RequiresRelocation = entity.RequiresRelocation,
+            OfferSponsorship = entity.OfferSponsorship,
+            OfferRelocation = entity.OfferRelocation,
             Notes = entity.Notes,
             CreatedAt = entity.CreatedAt,
             UpdatedAt = entity.UpdatedAt
@@ -54,8 +54,8 @@ public static class MappingService
             DateOfApply = entity.DateOfApply,
             NumberOfPhases = entity.NumberOfPhases,
             Status = entity.Status,
-            RequiresSponsorship = entity.RequiresSponsorship,
-            RequiresRelocation = entity.RequiresRelocation,
+            OfferSponsorship = entity.OfferSponsorship,
+            OfferRelocation = entity.OfferRelocation,
             Notes = entity.Notes
         };
     }
@@ -75,8 +75,8 @@ public static class MappingService
             DateOfApply = viewModel.DateOfApply,
             NumberOfPhases = viewModel.NumberOfPhases,
             Status = viewModel.Status,
-            RequiresSponsorship = viewModel.RequiresSponsorship,
-            RequiresRelocation = viewModel.RequiresRelocation,
+            OfferSponsorship = viewModel.OfferSponsorship,
+            OfferRelocation = viewModel.OfferRelocation,
             Notes = viewModel.Notes,
             UserId = userId,
             CreatedAt = viewModel.Id == 0 ? DateTime.UtcNow : default, // Set only for new entities
@@ -96,8 +96,8 @@ public static class MappingService
         entity.DateOfApply = viewModel.DateOfApply;
         entity.NumberOfPhases = viewModel.NumberOfPhases;
         entity.Status = viewModel.Status;
-        entity.RequiresSponsorship = viewModel.RequiresSponsorship;
-        entity.RequiresRelocation = viewModel.RequiresRelocation;
+        entity.OfferSponsorship = viewModel.OfferSponsorship;
+        entity.OfferRelocation = viewModel.OfferRelocation;
         entity.Notes = viewModel.Notes;
         entity.MarkAsUpdated();
     }

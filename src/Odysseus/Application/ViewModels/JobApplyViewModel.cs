@@ -35,11 +35,11 @@ public class JobApplyViewModel
     [Display(Name = "Status Display")]
     public string StatusDisplay => GetStatusDisplay(Status);
 
-    [Display(Name = "Requires Sponsorship")]
-    public bool RequiresSponsorship { get; set; }
+    [Display(Name = "Offer Sponsorship")]
+    public bool OfferSponsorship { get; set; }
 
-    [Display(Name = "Requires Relocation")]
-    public bool RequiresRelocation { get; set; }
+    [Display(Name = "Offer Relocation")]
+    public bool OfferRelocation { get; set; }
 
     [Display(Name = "Notes")]
     public string? Notes { get; set; }

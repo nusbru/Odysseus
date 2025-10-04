@@ -35,9 +35,9 @@ public class JobApply
     [Required(ErrorMessage = "Status is required")]
     public JobStatus Status { get; set; } = JobStatus.NotApplied;
 
-    public bool RequiresSponsorship { get; set; }
+    public bool OfferSponsorship { get; set; }
 
-    public bool RequiresRelocation { get; set; }
+    public bool OfferRelocation { get; set; }
 
     [StringLength(1000, ErrorMessage = "Notes cannot exceed 1000 characters")]
     public string? Notes { get; set; }
