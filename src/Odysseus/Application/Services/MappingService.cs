@@ -116,4 +116,159 @@ public static class MappingService
         dashboard.CalculateStatistics();
         return dashboard;
     }
+
+    #region MyProfile Mappings
+
+    /// <summary>
+    /// Maps MyProfile entity to MyProfileViewModel
+    /// </summary>
+    public static MyProfileViewModel ToViewModel(this MyProfile entity)
+    {
+        return new MyProfileViewModel
+        {
+            Id = entity.Id,
+            UserId = entity.UserId,
+            Passport = entity.Passport,
+            NeedRelocationSupport = entity.NeedRelocationSupport,
+            NeedSponsorship = entity.NeedSponsorship,
+            CreatedAt = entity.CreatedAt,
+            UpdatedAt = entity.UpdatedAt,
+            JobPreferences = entity.JobPreferences.Select(jp => jp.ToViewModel()).ToList()
+        };
+    }
+
+    /// <summary>
+    /// Maps MyProfile entity to MyProfileFormViewModel for editing
+    /// </summary>
+    public static MyProfileFormViewModel ToFormViewModel(this MyProfile entity)
+    {
+        return new MyProfileFormViewModel
+        {
+            Id = entity.Id,
+            Passport = entity.Passport,
+            NeedRelocationSupport = entity.NeedRelocationSupport,
+            NeedSponsorship = entity.NeedSponsorship
+        };
+    }
+
+    /// <summary>
+    /// Maps MyProfileFormViewModel to MyProfile entity
+    /// </summary>
+    public static MyProfile ToEntity(this MyProfileFormViewModel viewModel, string userId)
+    {
+        return new MyProfile
+        {
+            Id = viewModel.Id,
+            UserId = userId,
+            Passport = viewModel.Passport,
+            NeedRelocationSupport = viewModel.NeedRelocationSupport,
+            NeedSponsorship = viewModel.NeedSponsorship,
+            CreatedAt = viewModel.Id == 0 ? DateTime.UtcNow : default,
+            UpdatedAt = DateTime.UtcNow
+        };
+    }
+
+    /// <summary>
+    /// Updates an existing MyProfile entity with values from MyProfileFormViewModel
+    /// </summary>
+    public static void UpdateFromFormViewModel(this MyProfile entity, MyProfileFormViewModel viewModel)
+    {
+        entity.Passport = viewModel.Passport;
+        entity.NeedRelocationSupport = viewModel.NeedRelocationSupport;
+        entity.NeedSponsorship = viewModel.NeedSponsorship;
+        entity.MarkAsUpdated();
+    }
+
+    #endregion
+
+    #region MyJobPreference Mappings
+
+    /// <summary>
+    /// Maps MyJobPreference entity to MyJobPreferenceViewModel
+    /// </summary>
+    public static MyJobPreferenceViewModel ToViewModel(this MyJobPreference entity)
+    {
+        return new MyJobPreferenceViewModel
+        {
+            Id = entity.Id,
+            UserId = entity.UserId,
+            MyProfileId = entity.MyProfileId,
+            Title = entity.Title,
+            WorkModel = entity.WorkModel,
+            Contract = entity.Contract,
+            OfferRelocation = entity.OfferRelocation,
+            OfferSponsorship = entity.OfferSponsorship,
+            TotalCompensation = entity.TotalCompensation,
+            Notes = entity.Notes,
+            CreatedAt = entity.CreatedAt,
+            UpdatedAt = entity.UpdatedAt
+        };
+    }
+
+    /// <summary>
+    /// Maps collection of MyJobPreference entities to MyJobPreferenceViewModels
+    /// </summary>
+    public static IEnumerable<MyJobPreferenceViewModel> ToJobPreferenceViewModels(this IEnumerable<MyJobPreference> entities)
+    {
+        return entities.Select(ToViewModel);
+    }
+
+    /// <summary>
+    /// Maps MyJobPreference entity to MyJobPreferenceFormViewModel for editing
+    /// </summary>
+    public static MyJobPreferenceFormViewModel ToFormViewModel(this MyJobPreference entity)
+    {
+        return new MyJobPreferenceFormViewModel
+        {
+            Id = entity.Id,
+            MyProfileId = entity.MyProfileId,
+            Title = entity.Title,
+            WorkModel = entity.WorkModel,
+            Contract = entity.Contract,
+            OfferRelocation = entity.OfferRelocation,
+            OfferSponsorship = entity.OfferSponsorship,
+            TotalCompensation = entity.TotalCompensation,
+            Notes = entity.Notes
+        };
+    }
+
+    /// <summary>
+    /// Maps MyJobPreferenceFormViewModel to MyJobPreference entity
+    /// </summary>
+    public static MyJobPreference ToEntity(this MyJobPreferenceFormViewModel viewModel, string userId)
+    {
+        return new MyJobPreference
+        {
+            Id = viewModel.Id,
+            UserId = userId,
+            MyProfileId = viewModel.MyProfileId,
+            Title = viewModel.Title,
+            WorkModel = viewModel.WorkModel,
+            Contract = viewModel.Contract,
+            OfferRelocation = viewModel.OfferRelocation,
+            OfferSponsorship = viewModel.OfferSponsorship,
+            TotalCompensation = viewModel.TotalCompensation,
+            Notes = viewModel.Notes,
+            CreatedAt = viewModel.Id == 0 ? DateTime.UtcNow : default,
+            UpdatedAt = DateTime.UtcNow
+        };
+    }
+
+    /// <summary>
+    /// Updates an existing MyJobPreference entity with values from MyJobPreferenceFormViewModel
+    /// </summary>
+    public static void UpdateFromFormViewModel(this MyJobPreference entity, MyJobPreferenceFormViewModel viewModel)
+    {
+        entity.MyProfileId = viewModel.MyProfileId;
+        entity.Title = viewModel.Title;
+        entity.WorkModel = viewModel.WorkModel;
+        entity.Contract = viewModel.Contract;
+        entity.OfferRelocation = viewModel.OfferRelocation;
+        entity.OfferSponsorship = viewModel.OfferSponsorship;
+        entity.TotalCompensation = viewModel.TotalCompensation;
+        entity.Notes = viewModel.Notes;
+        entity.MarkAsUpdated();
+    }
+
+    #endregion
 }

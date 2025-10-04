@@ -12,6 +12,16 @@ public class ApplicationUser : IdentityUser
     public virtual ICollection<JobApply> JobApplications { get; set; } = new List<JobApply>();
 
     /// <summary>
+    /// User's profile information
+    /// </summary>
+    public virtual MyProfile? MyProfile { get; set; }
+
+    /// <summary>
+    /// Collection of job preferences for this user
+    /// </summary>
+    public virtual ICollection<MyJobPreference> JobPreferences { get; set; } = new List<MyJobPreference>();
+
+    /// <summary>
     /// User's preferred name for display
     /// </summary>
     public string? DisplayName { get; set; }

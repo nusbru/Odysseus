@@ -1,0 +1,312 @@
+@page "/profile"
+@page "/profile/edit"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject IMyProfileRepository ProfileRepository
+@inject UserManager<ApplicationUser> UserManager
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@rendermode InteractiveServer
+
+<PageTitle>My Profile - Odysseus</PageTitle>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h2">
+                    <i class="bi bi-person-circle"></i> My Profile
+                </h1>
+                <a href="/dashboard" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @if (IsLoading)
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading profile...</p>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-lg-10 col-xl-8 mx-auto">
+                <EditForm Model="FormModel" OnValidSubmit="HandleValidSubmit" FormName="ProfileForm">
+                    <DataAnnotationsValidator />
+
+                    @if (!string.IsNullOrEmpty(ErrorMessage))
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            <i class="bi bi-exclamation-triangle"></i> @ErrorMessage
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(SuccessMessage))
+                    {
+                        <div class="alert alert-success" role="alert">
+                            <i class="bi bi-check-circle"></i> @SuccessMessage
+                        </div>
+                    }
+
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-person-vcard"></i> Profile Information
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="passport" class="form-label">Passport Number</label>
+                                        <InputText @bind-Value="FormModel.Passport"
+                                                   class="form-control"
+                                                   id="passport"
+                                                   placeholder="Enter passport number (optional)" />
+                                        <ValidationMessage For="() => FormModel.Passport" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Open to Relocation?</label>
+                                        <InputRadioGroup @bind-Value="FormModel.RelocationSupportSelection">
+                                            <div class="form-check">
+                                                <InputRadio Value="@("yes")" class="form-check-input" id="relocationYes" />
+                                                <label class="form-check-label" for="relocationYes">Yes</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <InputRadio Value="@("no")" class="form-check-input" id="relocationNo" />
+                                                <label class="form-check-label" for="relocationNo">No</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <InputRadio Value="@("not_specified")" class="form-check-input" id="relocationNotSpecified" />
+                                                <label class="form-check-label" for="relocationNotSpecified">Not Specified</label>
+                                            </div>
+                                        </InputRadioGroup>
+                                    </div>
+                                </div>                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Need Sponsorship?</label>
+                                        <InputRadioGroup @bind-Value="FormModel.SponsorshipSelection">
+                                            <div class="form-check">
+                                                <InputRadio Value="@("yes")" class="form-check-input" id="sponsorshipYes" />
+                                                <label class="form-check-label" for="sponsorshipYes">Yes</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <InputRadio Value="@("no")" class="form-check-input" id="sponsorshipNo" />
+                                                <label class="form-check-label" for="sponsorshipNo">No</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <InputRadio Value="@("not_specified")" class="form-check-input" id="sponsorshipNotSpecified" />
+                                                <label class="form-check-label" for="sponsorshipNotSpecified">Not Specified</label>
+                                            </div>
+                                        </InputRadioGroup>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-footer bg-light">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    @if (ExistingProfile != null)
+                                    {
+                                        <small class="text-muted">
+                                            Created: @ExistingProfile.CreatedAt.ToString("MMM dd, yyyy")
+                                            @if (ExistingProfile.UpdatedAt != ExistingProfile.CreatedAt)
+                                            {
+                                                <br />
+                                                <text>Last Updated: @ExistingProfile.UpdatedAt.ToString("MMM dd, yyyy")</text>
+                                            }
+                                        </small>
+                                    }
+                                </div>
+                                <div>
+                                    <button type="submit" class="btn btn-primary" disabled="@IsSubmitting">
+                                        @if (IsSubmitting)
+                                        {
+                                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-check-lg me-2"></i>
+                                        }
+                                        @(ExistingProfile != null ? "Update Profile" : "Create Profile")
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </EditForm>
+
+                @if (ExistingProfile != null)
+                {
+                    <div class="mt-4">
+                        <div class="card">
+                            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">
+                                    <i class="bi bi-briefcase"></i> Job Preferences (@(ExistingProfileViewModel?.JobPreferencesCount ?? 0))
+                                </h5>
+                                <a href="/job-preferences/new" class="btn btn-light btn-sm">
+                                    <i class="bi bi-plus-lg"></i> Add Preference
+                                </a>
+                            </div>
+                            <div class="card-body">
+                                @if (ExistingProfileViewModel?.JobPreferencesCount > 0)
+                                {
+                                    <div class="row">
+                                        @foreach (var preference in ExistingProfileViewModel.JobPreferences.Take(3))
+                                        {
+                                            <div class="col-md-4">
+                                                <div class="card mb-3">
+                                                    <div class="card-body">
+                                                        <h6 class="card-title">@preference.Title</h6>
+                                                        <p class="card-text">
+                                                            <small class="text-muted">
+                                                                @preference.WorkModelText • @preference.ContractText
+                                                            </small>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+
+                                    @if (ExistingProfileViewModel.JobPreferencesCount > 3)
+                                    {
+                                        <div class="text-center">
+                                            <a href="/job-preferences" class="btn btn-outline-primary">
+                                                View All @ExistingProfileViewModel.JobPreferencesCount Preferences
+                                            </a>
+                                        </div>
+                                    }
+                                    else if (ExistingProfileViewModel.JobPreferencesCount <= 3 && ExistingProfileViewModel.JobPreferencesCount > 0)
+                                    {
+                                        <div class="text-center">
+                                            <a href="/job-preferences" class="btn btn-outline-primary">
+                                                Manage Preferences
+                                            </a>
+                                        </div>
+                                    }
+                                }
+                             ComponentModel   else
+                                {
+                                    <div class="text-center py-4">
+                                        <i class="bi bi-briefcase display-1 text-muted"></i>
+                                        <h5 class="mt-3">No job preferences yet</h5>
+                                        <p class="text-muted">Create your first job preference to get started</p>
+                                        <a href="/job-preferences/new" class="btn btn-primary">
+                                            <i class="bi bi-plus-lg me-2"></i> Add Your First Preference
+                                        </a>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private MyProfileFormViewModel FormModel { get; set; } = new();
+    private MyProfile? ExistingProfile { get; set; }
+    private MyProfileViewModel? ExistingProfileViewModel { get; set; }
+    private string? ErrorMessage { get; set; }
+    private string? SuccessMessage { get; set; }
+    private bool IsLoading { get; set; } = true;
+    private bool IsSubmitting { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProfile();
+        IsLoading = false;
+    }
+
+    private async Task LoadProfile()
+    {
+        try
+        {
+            var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = await UserManager.GetUserAsync(authenticationState.User);
+            if (user?.Id == null) return;
+
+            ExistingProfile = await ProfileRepository.GetByUserIdAsync(user.Id);
+
+            if (ExistingProfile != null)
+            {
+                FormModel = ExistingProfile.ToFormViewModel();
+                ExistingProfileViewModel = ExistingProfile.ToViewModel();
+            }
+            else
+            {
+                FormModel = new MyProfileFormViewModel();
+                ExistingProfileViewModel = null;
+            }
+        }
+        catch
+        {
+            ErrorMessage = "Failed to load profile. Please try again.";
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        IsSubmitting = true;
+        ErrorMessage = null;
+        SuccessMessage = null;
+
+        try
+        {
+            var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = await UserManager.GetUserAsync(authenticationState.User);
+            if (user?.Id == null)
+            {
+                ErrorMessage = "User not found. Please log in again.";
+                return;
+            }
+
+            if (ExistingProfile != null)
+            {
+                // Update existing profile
+                ExistingProfile.UpdateFromFormViewModel(FormModel);
+                await ProfileRepository.UpdateAsync(ExistingProfile);
+                SuccessMessage = "Profile updated successfully!";
+            }
+            else
+            {
+                // Create new profile
+                var newProfile = FormModel.ToEntity(user.Id);
+                ExistingProfile = await ProfileRepository.AddAsync(newProfile);
+                FormModel = ExistingProfile.ToFormViewModel();
+                SuccessMessage = "Profile created successfully!";
+            }
+
+            // Reload profile to get updated data
+            await LoadProfile();
+        }
+        catch
+        {
+            ErrorMessage = "Failed to save profile. Please try again.";
+        }
+        finally
+        {
+            IsSubmitting = false;
+        }
+    }
+}

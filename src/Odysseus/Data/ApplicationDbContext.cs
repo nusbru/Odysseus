@@ -8,6 +8,8 @@ namespace Odysseus.Host.Data;
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<ApplicationUser>(options)
 {
     public DbSet<JobApply> JobApplications { get; set; }
+    public DbSet<MyProfile> MyProfiles { get; set; }
+    public DbSet<MyJobPreference> MyJobPreferences { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -59,6 +61,86 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.HasIndex(e => e.UserId);
             entity.HasIndex(e => e.Status);
             entity.HasIndex(e => e.DateOfApply);
+        });
+
+        // Configure MyProfile entity
+        modelBuilder.Entity<MyProfile>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.UserId)
+                .IsRequired();
+
+            entity.Property(e => e.Passport)
+                .HasMaxLength(50);
+
+            entity.Property(e => e.CreatedAt)
+                .IsRequired();
+
+            entity.Property(e => e.UpdatedAt)
+                .IsRequired();
+
+            // Configure relationship with ApplicationUser
+            entity.HasOne(p => p.User)
+                .WithOne(u => u.MyProfile)
+                .HasForeignKey<MyProfile>(p => p.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Add index for better query performance
+            entity.HasIndex(e => e.UserId).IsUnique();
+        });
+
+        // Configure MyJobPreference entity
+        modelBuilder.Entity<MyJobPreference>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.UserId)
+                .IsRequired();
+
+            entity.Property(e => e.MyProfileId)
+                .IsRequired();
+
+            entity.Property(e => e.Title)
+                .IsRequired()
+                .HasMaxLength(200);
+
+            entity.Property(e => e.WorkModel)
+                .IsRequired()
+                .HasConversion<int>();
+
+            entity.Property(e => e.Contract)
+                .IsRequired()
+                .HasConversion<int>();
+
+            entity.Property(e => e.TotalCompensation)
+                .HasPrecision(18, 2);
+
+            entity.Property(e => e.Notes)
+                .HasMaxLength(1000);
+
+            entity.Property(e => e.CreatedAt)
+                .IsRequired();
+
+            entity.Property(e => e.UpdatedAt)
+                .IsRequired();
+
+            // Configure relationship with ApplicationUser
+            entity.HasOne(jp => jp.User)
+                .WithMany(u => u.JobPreferences)
+                .HasForeignKey(jp => jp.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure relationship with MyProfile
+            entity.HasOne(jp => jp.MyProfile)
+                .WithMany(p => p.JobPreferences)
+                .HasForeignKey(jp => jp.MyProfileId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Add indexes for better query performance
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => e.MyProfileId);
+            entity.HasIndex(e => new { e.UserId, e.Title });
         });
 
         // Configure ApplicationUser additional properties

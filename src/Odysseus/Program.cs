@@ -45,6 +45,8 @@ builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSe
 
 // Register application services
 builder.Services.AddScoped<IJobApplyRepository, JobApplyRepository>();
+builder.Services.AddScoped<IMyProfileRepository, MyProfileRepository>();
+builder.Services.AddScoped<IMyJobPreferenceRepository, MyJobPreferenceRepository>();
 
 var app = builder.Build();
 

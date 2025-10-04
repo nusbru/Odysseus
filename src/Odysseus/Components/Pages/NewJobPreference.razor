@@ -1,0 +1,276 @@
+@page "/job-preferences/new"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject IMyJobPreferenceRepository JobPreferenceRepository
+@inject IMyProfileRepository ProfileRepository
+@inject UserManager<ApplicationUser> UserManager
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@rendermode InteractiveServer
+
+<PageTitle>New Job Preference - Odysseus</PageTitle>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h2">
+                    <i class="bi bi-plus-lg"></i> Add Job Preference
+                </h1>
+                <a href="/job-preferences" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Preferences
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @if (IsLoading)
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading...</p>
+                </div>
+            </div>
+        </div>
+    }
+    else if (UserProfile == null)
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-warning" role="alert">
+                    <h5><i class="bi bi-exclamation-triangle"></i> Profile Required</h5>
+                    <p>You need to create a profile before adding job preferences.</p>
+                    <a href="/profile" class="btn btn-primary">
+                        <i class="bi bi-person-plus"></i> Create Profile First
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-lg-10 col-xl-8 mx-auto">
+                <EditForm Model="FormModel" OnValidSubmit="HandleValidSubmit" FormName="JobPreferenceForm">
+                    <DataAnnotationsValidator />
+
+                    @if (!string.IsNullOrEmpty(ErrorMessage))
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            <i class="bi bi-exclamation-triangle"></i> @ErrorMessage
+                        </div>
+                    }
+
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-briefcase"></i> Job Preference Details
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="mb-3">
+                                        <label for="title" class="form-label">Job Title <span class="text-danger">*</span></label>
+                                        <InputText @bind-Value="FormModel.Title" 
+                                                   class="form-control" 
+                                                   id="title" 
+                                                   placeholder="e.g., Senior Software Developer, Project Manager" />
+                                        <ValidationMessage For="() => FormModel.Title" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="workModel" class="form-label">Work Model <span class="text-danger">*</span></label>
+                                        <InputSelect @bind-Value="FormModel.WorkModel" class="form-select" id="workModel">
+                                            <option value="">Select work model...</option>
+                                            @foreach (var option in MyJobPreferenceFormViewModel.WorkModelOptions)
+                                            {
+                                                <option value="@option.Value">@option.Text</option>
+                                            }
+                                        </InputSelect>
+                                        <ValidationMessage For="() => FormModel.WorkModel" />
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="contract" class="form-label">Contract Type <span class="text-danger">*</span></label>
+                                        <InputSelect @bind-Value="FormModel.Contract" class="form-select" id="contract">
+                                            <option value="">Select contract type...</option>
+                                            @foreach (var option in MyJobPreferenceFormViewModel.ContractTypeOptions)
+                                            {
+                                                <option value="@option.Value">@option.Text</option>
+                                            }
+                                        </InputSelect>
+                                        <ValidationMessage For="() => FormModel.Contract" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <InputCheckbox @bind-Value="FormModel.OfferRelocation" 
+                                                           class="form-check-input" 
+                                                           id="offerRelocation" />
+                                            <label class="form-check-label" for="offerRelocation">
+                                                Company offers relocation support
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <InputCheckbox @bind-Value="FormModel.OfferSponsorship" 
+                                                           class="form-check-input" 
+                                                           id="offerSponsorship" />
+                                            <label class="form-check-label" for="offerSponsorship">
+                                                Company offers sponsorship
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="compensation" class="form-label">Total Compensation (Optional)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <InputNumber @bind-Value="FormModel.TotalCompensation" 
+                                                         class="form-control" 
+                                                         id="compensation" 
+                                                         placeholder="75000" 
+                                                         step="1000" />
+                                        </div>
+                                        <ValidationMessage For="() => FormModel.TotalCompensation" />
+                                        <div class="form-text">Enter your desired annual compensation</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="mb-3">
+                                        <label for="notes" class="form-label">Additional Notes</label>
+                                        <InputTextArea @bind-Value="FormModel.Notes" 
+                                                       class="form-control" 
+                                                       id="notes" 
+                                                       rows="4"
+                                                       placeholder="Any additional requirements, preferences, or notes..." />
+                                        <ValidationMessage For="() => FormModel.Notes" />
+                                        <div class="form-text">Maximum 1000 characters</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card-footer bg-light">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="/job-preferences" class="btn btn-outline-secondary">
+                                    <i class="bi bi-x-lg"></i> Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary" disabled="@IsSubmitting">
+                                    @if (IsSubmitting)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-check-lg me-2"></i>
+                                    }
+                                    Create Job Preference
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private MyJobPreferenceFormViewModel FormModel { get; set; } = new();
+    private MyProfile? UserProfile { get; set; }
+    private string? ErrorMessage { get; set; }
+    private bool IsLoading { get; set; } = true;
+    private bool IsSubmitting { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUserProfile();
+        IsLoading = false;
+    }
+
+    private async Task LoadUserProfile()
+    {
+        try
+        {
+            var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = await UserManager.GetUserAsync(authenticationState.User);
+            if (user?.Id == null) return;
+
+            UserProfile = await ProfileRepository.GetByUserIdAsync(user.Id);
+            
+            if (UserProfile != null)
+            {
+                FormModel.MyProfileId = UserProfile.Id;
+            }
+        }
+        catch
+        {
+            ErrorMessage = "Failed to load profile information. Please try again.";
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        IsSubmitting = true;
+        ErrorMessage = null;
+
+        try
+        {
+            var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = await UserManager.GetUserAsync(authenticationState.User);
+            if (user?.Id == null)
+            {
+                ErrorMessage = "User not found. Please log in again.";
+                return;
+            }
+
+            if (UserProfile == null)
+            {
+                ErrorMessage = "Profile not found. Please create a profile first.";
+                return;
+            }
+
+            // Create new job preference
+            var newJobPreference = FormModel.ToEntity(user.Id);
+            await JobPreferenceRepository.AddAsync(newJobPreference);
+
+            // Redirect with success message
+            Navigation.NavigateTo("/job-preferences?message=created");
+        }
+        catch
+        {
+            ErrorMessage = "Failed to create job preference. Please try again.";
+        }
+        finally
+        {
+            IsSubmitting = false;
+        }
+    }
+}
