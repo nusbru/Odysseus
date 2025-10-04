@@ -1,10 +1,31 @@
 # 🧭 Odysseus - Job Application Tracker
 
 <div align="center">
-  <img src="docs/logo.svg" alt="Odysseus Logo" width="500" height="500">
-</div>
+  <img src="docs/logo.svg" alt="Odysseus Logo" width="500" height="500">## 🏗️ Database Configuration
 
-A modern web application built with **Blazor Server** and **PostgreSQL** to help job seekers track and manage their job applications throughout their career journey. Features a comprehensive dashboard with analytics and visualization capabilities.
+### Database Schema
+
+The application uses a PostgreSQL database with the following main entities:
+
+- **JobApply**: Core job application tracking with status management
+- **MyProfile**: User profile information including passport, relocation, and sponsorship preferences
+- **MyJobPreference**: Job preferences with work models, contract types, and compensation expectations
+- **ApplicationUser**: ASP.NET Identity user management with role-based access
+- **Interview Phases**: Support for multiple interview rounds and stages
+
+### PostgreSQL Configuration
+
+The application uses PostgreSQL with the following default configuration:
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Database=odysseus;Username=odysseus_user;Password=odysseus_password;Port=5432"
+  }
+}
+```
+
+Modern web application built with **Blazor Server** and **PostgreSQL** to help job seekers track and manage their job applications throughout their career journey. Features a comprehensive dashboard with analytics and visualization capabilities.
 
 ## 📋 Table of Contents
 
@@ -35,7 +56,16 @@ A modern web application built with **Blazor Server** and **PostgreSQL** to help
 - Personal notes and job posting links
 - Application timeline with creation and update timestamps
 
-### 📈 Dashboard & Analytics
+### � Profile & Job Preferences Management
+- **Personal Profile**: Manage passport information, relocation preferences, and sponsorship needs
+- **Job Preferences**: Create and manage multiple job preference profiles
+- **Work Model Support**: Remote, Hybrid, On-site, and Flexible work arrangements
+- **Contract Types**: Full-time, Part-time, Contract, Freelance, and Internship options
+- **Compensation Tracking**: Set and track desired salary ranges
+- **Preference Filtering**: Filter and sort job preferences by work model, contract type, and compensation
+- **Relocation & Sponsorship**: Track employer relocation assistance and visa sponsorship offerings
+
+### �📈 Dashboard & Analytics
 - **Comprehensive Statistics**: Total applications, pending, in-progress, and rejected counts
 - **Status Overview**: Clear statistics cards showing application status breakdown
 - **Application Listing**: Detailed table view of all job applications
@@ -118,9 +148,10 @@ A modern web application built with **Blazor Server** and **PostgreSQL** to help
 ### First Steps
 
 1. Register a new account or sign in
-2. Navigate to the Dashboard
-3. Click "Add New Application" to create your first job application
-4. Track your progress and view analytics on the dashboard
+2. **Setup Your Profile**: Navigate to Profile to add personal information, relocation preferences, and sponsorship needs
+3. **Create Job Preferences**: Add job preferences with work models, contract types, and compensation expectations
+4. **Track Applications**: Use the Dashboard to add and manage your job applications
+5. **Monitor Progress**: View analytics and track your job search progress on the dashboard
 
 ## �️ Database Configuration
 
